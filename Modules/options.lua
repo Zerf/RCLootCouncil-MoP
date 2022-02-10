@@ -110,12 +110,6 @@ function addon:OptionsTable()
 										desc = L["Check to have all frames minimize when entering combat"],
 										type = "toggle",
 									},
-									ambiguate = {
-										order = 5,
-										name = L["Append realm names"],
-										desc = L["Check to append the realmname of a player from another realm"],
-										type = "toggle",
-									},
 									header = {
 										order = 7,
 										type = "header",
@@ -213,168 +207,6 @@ function addon:OptionsTable()
 										type = "execute",
 										func = function() self.lootDB:ResetDB("") end,
 										confirm = true,
-									},
-								},
-							},
-						},
-					},
-					appearanceTab = {
-						order = 3,
-						type = "group",
-						name = L["Appearance"],
-						args = {
-							skins = {
-								order = 1,
-								name = L["Skins"],
-								inline = true,
-								type = "group",
-								args = {
-									desc = {
-										order = 0,
-										type = "description",
-										name = L["skins_description"],
-									},
-									skinSelect = {
-										order = 1,
-										name = L["Skins"],
-										type = "select",
-										width = "double",
-										values = function()
-											local t = {}
-											for k,v in pairs(db.skins) do
-												t[k] = v.name
-											end
-											return t
-										end,
-										get = function() return db.currentSkin	end,
-										set = function(info, key)
-											self:ActivateSkin(key)
-										end,
-									},
-									saveSkin = {
-										order = 2,
-										name = L["Save Skin"],
-										desc = L["save_skin_desc"],
-										type = "input",
-										set = function(info, text)
-											db.skins[text] = {
-												name = text,
-												bgColor = {unpack(db.UI.default.bgColor)},
-												borderColor = {unpack(db.UI.default.borderColor)},
-												background = db.UI.default.background,
-												border = db.UI.default.border,
-											}
-											db.currentSkin = text
-										end,
-									},
-									deleteSkin = {
-										order = 3,
-										name = L["Delete Skin"],
-										desc = L["delete_skin_desc"],
-										type = "execute",
-										confirm = true,
-										func = function()
-											db.skins[db.currentSkin] = nil
-											for k in pairs(db.skins) do db.currentSkin = k break end
-										end,
-									},
-									resetSkins = {
-										order = 4,
-										name = L["Reset skins"],
-										desc = L["reset_skins_desc"],
-										type = "execute",
-										confirm = true,
-										func = function()
-											for k,v in pairs(self.defaults.profile.skins) do
-												db.skins[k] = v
-											end
-											db.currentSkin = self.defaults.profile.currentSkin
-										end,
-									},
-								},
-							},
-							custom = {
-								order = 2,
-								name = L["Customize appearance"],
-								inline = true,
-								type = "group",
-								args = {
-									desc = {
-										order = 1,
-										type = "description",
-										name = L["customize_appearance_desc"],
-									},
-									background = {
-										order = 3,
-										name = L["Background"],
-										width = "double",
-										type = "select",
-										dialogControl = "LSM30_Background",
-										values = AceGUIWidgetLSMlists.background,
-										get = function() return db.UI.default.background end,
-										set = function(info, key)
-											for k,v in pairs(db.UI) do
-												v.background = key
-											end
-											self:UpdateFrames()
-										end
-									},
-									backgroundColor = {
-										order = 4,
-										name = L["Background Color"],
-										type = "color",
-										hasAlpha = true,
-										get = function() return unpack(db.UI.default.bgColor) end,
-										set = function(info, r,g,b,a)
-											for k,v in pairs(db.UI) do
-												v.bgColor = {r,g,b,a}
-											end
-											self:UpdateFrames()
-										end
-									},
-									border = {
-										order = 5,
-										name = L["Border"],
-										type = "select",
-										width = "double",
-										dialogControl = "LSM30_Border",
-										values = AceGUIWidgetLSMlists.border,
-										get = function() return db.UI.default.border end,
-										set = function(info, key)
-											for k,v in pairs(db.UI) do
-												v.border = key
-											end
-											self:UpdateFrames()
-										end,
-									},
-									borderColor = {
-										order = 6,
-										name = L["Border Color"],
-										type = "color",
-										hasAlpha = true,
-										get = function() return unpack(db.UI.default.borderColor) end,
-										set = function(info, r,g,b,a)
-											for k,v in pairs(db.UI) do
-												v.borderColor = {r,g,b,a}
-											end
-											self:UpdateFrames()
-										end
-									},
-									reset = {
-										order = -1,
-										name = L["Reset Skin"],
-										desc = L["reset_skin_desc"],
-										type = "execute",
-										confirm = true,
-										func = function()
-											for k,v in pairs(db.UI) do
-												v.bgColor = db.skins[db.currentSkin].bgColor
-												v.borderColor = db.skins[db.currentSkin].borderColor
-												v.background = db.skins[db.currentSkin].background
-												v.border = db.skins[db.currentSkin].border
-											end
-											self:UpdateFrames()
-										end,
 									},
 								},
 							},
@@ -823,7 +655,7 @@ function addon:OptionsTable()
 											if self.db.profile.timeout then
 												self.db.profile.timeout = false
 											else
-												self.db.profile.timeout = 30
+												self.db.profile.timeout = 60 --previous default 30
 											end
 										end,
 										get = function()

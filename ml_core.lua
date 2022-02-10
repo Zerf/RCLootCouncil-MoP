@@ -84,13 +84,15 @@ end
 
 function RCLootCouncilML:AddCandidate(name, class, role, rank, enchant, lvl)
 	addon:DebugLog("ML:AddCandidate",name, class, role, rank, enchant, lvl)
-	self.candidates[name] = {
-		["class"]		= class,
-		["role"]			= role,
-		["rank"]			= rank or "", -- Rank cannot be nil for votingFrame
-		["enchanter"] 	= enchant,
-		["enchant_lvl"]= lvl,
-	}
+	if name ~= nil then
+		self.candidates[name] = {
+			["class"]		= class,
+			["role"]			= role,
+			["rank"]			= "", --rank or "", -- Rank cannot be nil for votingFrame
+			["enchanter"] 	= enchant,
+			["enchant_lvl"]= lvl,
+		}
+	end
 end
 
 function RCLootCouncilML:RemoveCandidate(name)

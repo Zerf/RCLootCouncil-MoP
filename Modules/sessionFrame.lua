@@ -9,7 +9,7 @@ local ST = LibStub("ScrollingTable")
 local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
 
 local ml;
-local ROW_HEIGHT = 40
+local ROW_HEIGHT = 30
 local awardLater = false
 local loadingItems = false
 
@@ -17,7 +17,7 @@ function RCSessionFrame:OnInitialize()
 	self.scrollCols = {
 		{ name = "", sortnext = 3,	width = 30 }, 			-- remove item
 		{ name = "", sortnext = 3,	width = ROW_HEIGHT },-- item icon
-		{ name = L["Item"],			width = 150}, 			-- item link
+		{ name = "",			width = 150}, 			-- item link
 	}
 end
 
@@ -111,19 +111,19 @@ end
 function RCSessionFrame:GetFrame()
 	if self.frame then return self.frame end
 
-	local f = addon:CreateFrame("DefaultRCSessionSetupFrame", "sessionframe", L["RCLootCouncil Session Setup"], 250)
+	local f = addon:CreateFrame("DefaultRCSessionSetupFrame", "sessionframe", L["RCLootCouncil Session Setup"], 250, 250)
+	
 
-	local tgl = CreateFrame("CheckButton", f:GetName().."Toggle", f.content, "ChatConfigCheckButtonTemplate")
-	getglobal(tgl:GetName().."Text"):SetText(L["Award later?"])
-	tgl:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 40)
-	tgl.tooltip = L["Check this to loot the items and distribute them later."]
+	local tgl = CreateFrame("CheckButton", f:GetName().."Toggle", f.content, "UICheckButtonTemplate")
+	tgl:SetSize(30, 30)
+	tgl:SetPoint("CENTER", f, "BOTTOM", 0, 30)
 	tgl:SetChecked(awardLater)
 	tgl:SetScript("OnClick", function() awardLater = not awardLater; end )
 	f.toggle = tgl
 
 	-- Start button
 	local b1 = addon:CreateButton(L["Start"], f.content)
-	b1:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 10)
+	b1:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 20)
 	b1:SetScript("OnClick", function()
 		if loadingItems then
 			return addon:Print(L["You can't start a session before all items are loaded!"])
@@ -146,7 +146,7 @@ function RCSessionFrame:GetFrame()
 
 	-- Cancel button
 	local b2 = addon:CreateButton(L["Cancel"], f.content)
-	b2:SetPoint("LEFT", b1, "RIGHT", 15, 0)
+	b2:SetPoint("LEFT", b1, "RIGHT", 43, 0)
 	b2:SetScript("OnClick", function()
 		ml.lootTable = {}
 		self:Disable()

@@ -113,7 +113,7 @@ function RCLootCouncil:OnInitialize()
 			autolootBoE = true,
 			autoOpen = true, -- auto open the voting frame
 			autoClose = false, -- Auto close voting frame on session end
-			autoPassBoE = true,
+			autoPassBoE = false,
 			autoPass = true,
 			altClickLooting = true,
 			acceptWhispers = true,
@@ -152,33 +152,12 @@ function RCLootCouncil:OnInitialize()
 			},
 
 			skins = {
-				new_blue = {
-					name = "Midnight blue",
-					bgColor = {0, 0, 0.2, 1}, -- Blue-ish
-					borderColor = {0.3, 0.3, 0.5, 1}, -- More Blue-ish
-					border = "Blizzard Tooltip",
-					background = "Blizzard Tooltip",
-				},
-				old_red = {
-					name = "Old golden red",
-					bgColor = {0.5, 0, 0 ,1},
-					borderColor = {1, 0.5, 0, 1},
-					border = "Blizzard Tooltip",
-					background = "Blizzard Dialog Background Gold",
-				},
 				minimalGrey = {
 					name = "Minimal Grey",
 					bgColor = {0.25, 0.25, 0.25, 1},
 					borderColor = {1, 1, 1, 0.2},
 					border = "Blizzard Tooltip",
 					background = "Blizzard Tooltip",
-				},
-				legion = {
-					name = "Legion Green",
-					bgColor = {0.1, 1, 0, 1},
-					borderColor = {0, 0.8, 0, 0.75},
-					background = "Blizzard Garrison Background 2",
-					border = "Blizzard Dialog Gold",
 				},
 			},
 			currentSkin = "legion",
@@ -246,7 +225,7 @@ function RCLootCouncil:OnInitialize()
 	end
 	for i = self.defaults.profile.numButtons+1, self.defaults.profile.maxButtons do
 		tinsert(self.defaults.profile.responses, {
-			color = {0.7, 0.7,0.7,1},
+			color = {0.7, 0.7,0.7,0},
 			sort = i,
 			text = L["Button"]..i,
 		})
@@ -781,8 +760,8 @@ end
 
 function RCLootCouncil:Test(num)
 	self:Debug("Test", num)
-	local testItems = {105473,105407,105513,105465,105482,104631,105450,105537,104554,105509,104412,105499,104476,104544,104495,105568,105514,105479,104532,105639,104508,105621,
-		137471,137463,137474,137472,137468, -- Artifact relics
+	local testItems = {96404,104563,104483,104479,104614,96534,104539,104605,99714,99715,99716,99712,99726,99713,104462,105840,96429,96449,104615,104502,96523,96455,96409,
+	104485,104470,104448,104654,104519,104466,104471,104581,104547,104490,104537,99387
 	}
 	local items = {};
 	-- pick "num" random items
@@ -1051,14 +1030,19 @@ function RCLootCouncil:GetPlayerInfo()
 	-- Check if the player has enchanting
 	local enchant, lvl = nil, 0
 	local prof1, prof2 = GetProfessions()
-	if prof1 or prof2 then
-		for i = 1, 2 do
-			local _, _, rank, _, _, _, id = GetProfessionInfo(select(i, prof1, prof2))
+	if prof1 then -- had some issues so i seperated it
+			local _, _, rank, _, _, _, id = GetProfessionInfo(prof1)
 			if id and id == 333 then -- NOTE: 333 should be enchanting, let's hope that holds...
 				self:Debug("I'm an enchanter")
 				enchant, lvl = true, rank
 			end
-		end
+	end
+	if prof2 then
+			local _, _, rank, _, _, _, id = GetProfessionInfo(prof2)
+			if id and id == 333 then -- NOTE: 333 should be enchanting, let's hope that holds...
+				self:Debug("I'm an enchanter")
+				enchant, lvl = true, rank
+			end
 	end
 	local ilvl = select(2,GetAverageItemLevel())
 	return self.playerName, self.playerClass, self:GetPlayerRole(), self.guildRank, enchant, lvl, ilvl
@@ -1322,34 +1306,16 @@ function RCLootCouncil:UnitIsUnit(unit1, unit2)
 	return UnitIsUnit(unit1, unit2)
 end
 
--- We always want realm name when we call UnitName
--- Note: If 'unit' is a playername, that player must be in our raid or party!
---[[ NOTE I'm concerned about the UnitIsVisible() range thing with UnitName(),
- 	although testing in party doesn't seem to affect it. To counter this, it'll
-	return any "unit" with something after a "-" (i.e a name from GetRaidRosterInfo())
-	which means it isn't useable with all the "name-target" unitIDs]]
-function RCLootCouncil:UnitName(unit)
-	-- First strip any spaces
-	unit = gsub(unit, " ", "")
-	-- Then see if we already have a realm name appended
-	local find = strfind(unit, "-", nil, true)
-	if find and find < #unit then -- "-" isn't the last character
-		-- Let's give it same treatment as below so we're sure it's the same
-		local name, realm = strsplit("-", unit, 2)
+function RCLootCouncil:UnitName(unit) -- cba all the realm shit, format all just as name, withour realm`
+	if unit ~= nil then
+		unit = gsub(unit, " ", "")
+		local name = UnitName(unit)
 		name = name:lower():gsub("^%l", string.upper)
-		return name.."-"..realm
+		return name or nil --and name.."-"..realm or nil
 	end
-	-- Apparently functions like GetRaidRosterInfo() will return "real" name, while UnitName() won't
-	-- always work with that (see ticket #145). We need this to be consistant, so just lowercase the unit:
-	unit = unit:lower()
-	-- Proceed with UnitName()
-	local name, realm = UnitName(unit)
-	if not realm or realm == "" then realm = self.realmName end -- Extract our own realm
-	-- We also want to make sure the returned name is always title cased (it might not always be! ty Blizzard)
-	name = name:lower():gsub("^%l", string.upper)
-	return name and name.."-"..realm or nil
 end
 
+--]]
 ---------------------------------------------------------------------------
 -- Custom module support funcs
 ---------------------------------------------------------------------------
@@ -1461,8 +1427,8 @@ function RCLootCouncil:CreateFrame(name, cName, title, width, height)
 	     tile = true, tileSize = 64, edgeSize = 12,
 	     insets = { left = 2, right = 2, top = 2, bottom = 2 }
 	})
-	tf:SetBackdropColor(unpack(db.UI.default.bgColor))
-	tf:SetBackdropBorderColor(unpack(db.UI.default.borderColor))
+	tf:SetBackdropColor(0, 0, 0, 0)
+	tf:SetBackdropBorderColor(0, 0, 0, 0)
 	tf:SetHeight(22)
 	tf:EnableMouse()
 	tf:SetMovable(true)
@@ -1499,8 +1465,8 @@ function RCLootCouncil:CreateFrame(name, cName, title, width, height)
 	c:EnableMouse(true)
 	c:SetWidth(450)
 	c:SetHeight(height or 325)
-	c:SetBackdropColor(unpack(db.UI.default.bgColor))
-	c:SetBackdropBorderColor(unpack(db.UI.default.borderColor))
+	c:SetBackdropColor(0, 0, 0, 0)
+	c:SetBackdropBorderColor(0, 0, 0, 0)
 	c:SetPoint("TOPLEFT")
 	c:SetScript("OnMouseDown", function(self) self:GetParent():StartMoving() end)
 	c:SetScript("OnMouseUp", function(self) self:GetParent():StopMovingOrSizing(); self:GetParent():SavePosition() end)

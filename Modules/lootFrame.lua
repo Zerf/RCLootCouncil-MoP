@@ -11,7 +11,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
 
 local items = {} -- item.i = {name, link, lvl, texture} (i == session)
 local entries = {}
-local ENTRY_HEIGHT = 75
+local ENTRY_HEIGHT = 40
 local MAX_ENTRIES = 5
 local numRolled = 0
 
@@ -78,24 +78,24 @@ end
 --end
 
 function LootFrame:Update()
-	local width = 150
+	local width = 100
 	local numEntries = 0
 	for k,v in ipairs(items) do
 		if numEntries >= MAX_ENTRIES then break end -- Only show a certain amount of items at a time
 		if not v.rolled then -- Only show unrolled items
 			numEntries = numEntries + 1
-			width = 150 -- reset it
+			width = 100  -- reset it
 			if not entries[numEntries] then entries[numEntries] = self:GetEntry(numEntries) end
 			-- Actually update entries
 			entries[numEntries].realID = k
 			entries[numEntries].link = v.link
 			entries[numEntries].icon:SetNormalTexture(v.texture)
-			entries[numEntries].itemText:SetText(v.link)
-			entries[numEntries].itemLvl:SetText(format(L["ilvl: x"], v.ilvl))
 			-- Update the buttons and get frame width
 			-- IDEA There might be a better way of doing this instead of SetText() on every update?
 			local but = entries[numEntries].buttons[addon.mldb.numButtons+1]
-			but:SetWidth(but:GetTextWidth() + 10)
+			if but ~= nil then
+				but:SetWidth(but:GetTextWidth() + 10)
+			end
 			width = width + but:GetWidth()
 			for i = 1, addon.mldb.numButtons do
 				but = entries[numEntries].buttons[i]
@@ -143,7 +143,7 @@ end
 function LootFrame:GetFrame()
 	if self.frame then return self.frame end
 	addon:DebugLog("LootFrame","GetFrame()")
-	return addon:CreateFrame("DefaultRCLootFrame", "lootframe", L["RCLootCouncil Loot Frame"], 250, 375)
+	return addon:CreateFrame("DefaultRCLootFrame", "lootframe", L["RCLootCouncil Loot Frame"], 10, 0)
 end
 
 function LootFrame:GetEntry(entry)
@@ -160,7 +160,7 @@ function LootFrame:GetEntry(entry)
 
 	local icon = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
 	icon:SetSize(ENTRY_HEIGHT*2/3, ENTRY_HEIGHT*2/3)
-	icon:SetPoint("TOPLEFT", f, "TOPLEFT", 12, -13)
+	icon:SetPoint("TOPLEFT", f, "TOPLEFT", 12, 0)
 	icon:SetScript("OnEnter", function()
 		if not f.link then return; end
 		addon:CreateHypertip(f.link)
@@ -179,15 +179,15 @@ function LootFrame:GetEntry(entry)
 	for i = 1, addon.mldb.numButtons do
 		f.buttons[i] = addon:CreateButton(addon:GetButtonText(i), f)
 		if i == 1 then
-			f.buttons[i]:SetPoint("BOTTOMLEFT", icon, "BOTTOMRIGHT", 5, 0)
+			f.buttons[i]:SetPoint("BOTTOMLEFT", icon, "BOTTOMRIGHT", 0, 0)
 		else
-			f.buttons[i]:SetPoint("LEFT", f.buttons[i-1], "RIGHT", 5, 0)
+			f.buttons[i]:SetPoint("LEFT", f.buttons[i-1], "RIGHT", 0, 0)
 		end
 		f.buttons[i]:SetScript("OnClick", function() LootFrame:OnRoll(entry, i) end)
 	end
 	-- Pass button
 	f.buttons[addon.mldb.numButtons + 1] = addon:CreateButton(L["Pass"], f)
-	f.buttons[addon.mldb.numButtons + 1]:SetPoint("LEFT", f.buttons[addon.mldb.numButtons], "RIGHT", 5, 0)
+	f.buttons[addon.mldb.numButtons + 1]:SetPoint("LEFT", f.buttons[addon.mldb.numButtons], "RIGHT", 0, 0)
 	f.buttons[addon.mldb.numButtons + 1]:SetScript("OnClick", function() LootFrame:OnRoll(entry, "PASS") end)
 
 	-------- Note button ---------
@@ -195,7 +195,7 @@ function LootFrame:GetEntry(entry)
 	noteButton:SetSize(20,20)
    noteButton:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
 	noteButton:SetNormalTexture("Interface\\Buttons\\UI-GuildButton-PublicNote-Up")
-   noteButton:SetPoint("BOTTOMRIGHT", -12, 12)
+   noteButton:SetPoint("BOTTOMRIGHT", -40, 16)
 	noteButton:SetScript("OnEnter", function()
 		if items[entries[entry].realID].note then -- If they already entered a note:
 			addon:CreateTooltip(L["Your note:"], items[entries[entry].realID].note, "\nClick to change your note.")
@@ -207,25 +207,13 @@ function LootFrame:GetEntry(entry)
 	noteButton:SetScript("OnClick", function() LibDialog:Spawn("LOOTFRAME_NOTE", entry) end)
 	f.noteButton = noteButton
 
-	----- item text/lvl ---------------
-	local iTxt = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-	iTxt:SetPoint("TOPLEFT", f.icon, "TOPRIGHT", 5, -5)
-	iTxt:SetText("Item name goes here!!!!") -- Set text for reasons
-	f.itemText = iTxt
-
-	local ilvl = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	ilvl:SetPoint("TOPRIGHT", f, "TOPRIGHT", -12, -13)
-	ilvl:SetTextColor(1, 1, 1) -- White
-	ilvl:SetText("ilvl: 670")
-	f.itemLvl = ilvl
-
 	------------ Timeout -------------
 	local bar = CreateFrame("StatusBar", nil, f, "TextStatusBar")
-	bar:SetSize(f:GetWidth(), 6)
-	bar:SetPoint("BOTTOMLEFT", 12,4)
+	bar:SetSize(f:GetWidth(), 8)
+	bar:SetPoint("BOTTOMLEFT", 12,2)
 	bar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
 	--bar:SetStatusBarColor(0.1, 0, 0.6, 0.8) -- blue
-	bar:SetStatusBarColor(0.5, 0.5, 0.5, 1) -- grey
+	bar:SetStatusBarColor(1, 1, 0, 1) -- grey
 	bar:SetMinMaxValues(0, addon.mldb.timeout or 30)
 	bar:SetScript("OnUpdate", function(this, elapsed)
 		if items[f.realID].timeLeft <= 0 then --Timeout!
