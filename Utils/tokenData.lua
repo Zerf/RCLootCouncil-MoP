@@ -151,3 +151,10 @@
 	[89256] = "HandsSlot",
 	[89257] = "HandsSlot",
 }
+
+RCTokenClass = {
+
+	["Conqueror"] = {"PALADIN", "PRIEST", "WARLOCK"}, -- Conqueror
+	["Protector"] = {"WARRIOR", "HUNTER", "SHAMAN", "MONK"}, -- Protector
+	["Vanquisher"] = {"ROGUE", "DEATHKNIGHT", "MAGE", "DRUID"} -- Vanquisher
+}

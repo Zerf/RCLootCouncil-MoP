@@ -35,8 +35,23 @@ local autopassTable = {
 -- Returns true if the player should autopass the given item
 function RCLootCouncil:AutoPassCheck(subType, equipLoc, link)
 	if not tContains(autopassOverride, equipLoc) then
-		 if subType and autopassTable[subType] then
+		if subType and autopassTable[subType] then
 			return tContains(autopassTable[subType], self.playerClass)
+		end
+		local id = self:GetItemIDFromLink(link) -- Convert item(hyperlink) to id, used to see if its in the already existing table
+		local name = self:GetItemNameFromLink(link) -- Convert item(hyperlink) to string
+		local tokenid = ""
+
+		if RCTokenTable[id] then -- It's a token, using the already existing token table
+			if string.find(name, "Conqueror") then
+			tokenid = "Conqueror"
+			elseif string.find(name, "Protector") then
+			tokenid = "Protector"
+			else string.find(name, "Vanquisher")
+			tokenid = "Vanquisher"
+			end
+			self:Debug("\nToken: "..tokenid, "\nClass "..self.playerClass, "\nAutopass: ", tContains(RCTokenClass[tokenid], self.playerClass))
+			return not tContains(RCTokenClass[tokenid], self.playerClass)
 		end
 	return false
 	end
