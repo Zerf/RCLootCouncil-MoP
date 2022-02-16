@@ -913,6 +913,7 @@ function addon:OptionsTable()
 			get = function() return unpack(self.db.profile.responses[i].color)	end,
 			set = function(info,r,g,b,a) addon:ConfigTableChanged("responses"); self.db.profile.responses[i].color = {r,g,b,a} end,
 			hidden = function() return self.db.profile.numButtons < i end,
+			--print(i, unpack(self.db.profile.responses[i].color)) -- unpack color settings for every button index
 		}
 		options.args.mlSettings.args.buttonsTab.args.buttonOptions.args["picker"..i] = picker;
 		text = {

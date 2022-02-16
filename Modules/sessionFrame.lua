@@ -111,7 +111,7 @@ end
 function RCSessionFrame:GetFrame()
 	if self.frame then return self.frame end
 
-	local f = addon:CreateFrame("DefaultRCSessionSetupFrame", "sessionframe", L["RCLootCouncil Session Setup"], 250, 250)
+	local f = addon:CreateFrame("DefaultRCSessionSetupFrame", "sessionframe", "Toggle Frame", 250, 250)
 	
 
 	local tgl = CreateFrame("CheckButton", f:GetName().."Toggle", f.content, "UICheckButtonTemplate")

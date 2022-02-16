@@ -2,7 +2,7 @@
 ## Interface: 50400
 ## Notes: Interface for running a Loot Council for WoW 5.4.8 patch (Backport)
 ## Title: RCLootCouncil
-## Version: 1.0.1
+## Version: 1.0.2
 ## SavedVariables: RCLootCouncilDB, RCLootCouncilLootDB
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, lib-st, LibWindow-1.1, LibDialog-1.0
 

@@ -9,8 +9,8 @@ local RCVotingFrame = addon:NewModule("RCVotingFrame", "AceComm-3.0")
 local LibDialog = LibStub("LibDialog-1.0")
 local L = LibStub("AceLocale-3.0"):GetLocale("RCLootCouncil")
 
-local ROW_HEIGHT = 20;
-local NUM_ROWS = 15;
+local ROW_HEIGHT = 15;
+local NUM_ROWS = 10;
 local db
 local session = 1 -- The session we're viewing
 local lootTable = {} -- lib-st compatible, extracted from addon's lootTable
@@ -29,18 +29,18 @@ local GuildRankSort, ResponseSort -- Initialize now to avoid errors
 function RCVotingFrame:OnInitialize()
 	self.scrollCols = {
 		{ name = "",															sortnext = 2,		width = 20, },	-- 1 Class
-		{ name = L["Name"],																			width = 120,},	-- 2 Candidate Name
-		{ name = L["Rank"],		comparesort = GuildRankSort,		sortnext = 5,		width = 95,},	-- 3 Guild rank
-		{ name = L["Role"],													sortnext = 5,		width = 55, },	-- 4 Role
-		{ name = L["Response"],	comparesort = ResponseSort,		sortnext = 13,		width = 240,},	-- 5 Response
-		{ name = L["ilvl"],													sortnext = 7,		width = 45, },	-- 6 Total ilvl
-		{ name = L["Diff"],																			width = 40, },	-- 7 ilvl difference
+		{ name = L["Name"],																			width = 80,},	-- 2 Candidate Name
+		{ name = L["Rank"],		comparesort = GuildRankSort,		sortnext = 5,		width = 50,},	-- 3 Guild rank
+		{ name = L["Role"],													sortnext = 5,		width = 35, },	-- 4 Role
+		{ name = L["Response"],	comparesort = ResponseSort,		sortnext = 12,		width = 190,},	-- 5 Response
+		{ name = L["ilvl"],													sortnext = 7,		width = 35, },	-- 6 Total ilvl
+		{ name = L["Diff"],																			width = 30, },	-- 7 ilvl difference
 		{ name = L["g1"],			align = "CENTER",						sortnext = 5,		width = 20, },	-- 8 Current gear 1
 		{ name = L["g2"],			align = "CENTER",						sortnext = 5,		width = 20, },	-- 9 Current gear 2
 		{ name = L["Votes"], 	align = "CENTER",						sortnext = 7,		width = 40, },	-- 10 Number of votes
-		{ name = L["Vote"],		align = "CENTER",						sortnext = 10,		width = 60, },	-- 11 Vote button
-		{ name = L["Notes"],		align = "CENTER",												width = 40, },	-- 12 Note icon
-		{ name = L["Roll"],		align = "CENTER", 					sortnext = 10,		width = 30, },	-- 13 Roll
+		{ name = L["Vote"],		align = "CENTER",						sortnext = 10,		width = 30, },	-- 11 Vote button
+		{ name = L["Notes"],		align = "CENTER",												width = 35, },	-- 12 Note icon
+		--{ name = "",		align = "CENTER", 					sortnext = 10,		width = -20, },	-- 13 Roll, ----Hiding the roll stuff
 	}
 	menuFrame = CreateFrame("Frame", "RCLootCouncil_VotingFrame_RightclickMenu", UIParent, "Lib_UIDropDownMenuTemplate")
 	filterMenu = CreateFrame("Frame", "RCLootCouncil_VotingFrame_FilterMenu", UIParent, "Lib_UIDropDownMenuTemplate")
@@ -70,12 +70,14 @@ end
 
 function RCVotingFrame:Hide()
 	addon:Debug("Hide VotingFrame")
+	self:Update()
 	self.frame.moreInfo:Hide()
 	self.frame:Hide()
 end
 
 function RCVotingFrame:Show()
 	if self.frame then
+		self:Update()
 		councilInGroup = addon:GetCouncilInGroup()
 		self.frame:Show()
 		self:SwitchSession(session)
@@ -209,7 +211,7 @@ function RCVotingFrame:Setup(table)
 				gear2 = nil,
 				votes = 0,
 				note = nil,
-				roll = "",
+				--roll = "",
 				voters = {},
 				haveVoted = false, -- Have we voted for this particular candidate in this session?
 			}
@@ -244,7 +246,7 @@ function RCVotingFrame:HandleVote(session, name, vote, voter)
 	self.frame.st:Refresh()
 	self:UpdatePeopleToVote()
 end
-
+--[[
 function RCVotingFrame:DoRandomRolls(ses)
 	local table = {}
 	for name, v in pairs (lootTable[ses].candidates) do
@@ -252,7 +254,7 @@ function RCVotingFrame:DoRandomRolls(ses)
 	end
 	addon:SendCommand("group", "rolls", ses, table)
 end
-
+--]]
 ------------------------------------------------------------------
 --	Visuals														--
 ------------------------------------------------------------------
@@ -331,7 +333,7 @@ function RCVotingFrame:BuildST()
 				{ value = 0,	DoCellUpdate = self.SetCellVotes, 		name = "votes",},
 				{ value = 0,	DoCellUpdate = self.SetCellVote,			name = "vote",},
 				{ value = 0,	DoCellUpdate = self.SetCellNote, 		name = "note",},
-				{ value = "",	DoCellUpdate = self.SetCellRoll,			name = "roll"},
+				--{ value = "",	DoCellUpdate = self.SetCellRoll,			name = "roll"},
 			},
 		}
 		i = i + 1
@@ -400,7 +402,7 @@ function RCVotingFrame:UpdateMoreInfo(row, data)
 	end
 	tip:SetScale(db.UI.votingframe.scale-0.1) -- Make it a bit smaller, as it's too wide otherwise
 	tip:Show()
-	tip:SetAnchorType("ANCHOR_RIGHT", 0, -tip:GetHeight())
+	tip:SetAnchorType("ANCHOR_RIGHT", -10, -tip:GetHeight() - 102) -- loot history anchoring
 end
 
 
@@ -408,10 +410,10 @@ function RCVotingFrame:GetFrame()
 	if self.frame then return self.frame end
 
 	-- Container and title
-	local f = addon:CreateFrame("DefaultRCLootCouncilFrame", "votingframe", L["RCLootCouncil Voting Frame"], 250, 420)
+	local f = addon:CreateFrame("DefaultRCLootCouncilFrame", "votingframe", "Toggle Frame", 50, 260)
 	-- Scrolling table
 	local st = LibStub("ScrollingTable"):CreateST(self.scrollCols, NUM_ROWS, ROW_HEIGHT, { ["r"] = 1.0, ["g"] = 0.9, ["b"] = 0.0, ["a"] = 0.5 }, f.content)
-	st.frame:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 10)
+	st.frame:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 10, 10) -- top frame anchor
 	st:RegisterEvents({
 		["OnClick"] = function(rowFrame, cellFrame, data, cols, row, realrow, column, table, button, ...)
 			if button == "RightButton" and row then
@@ -493,7 +495,7 @@ function RCVotingFrame:GetFrame()
 
 	-- Abort button
 	local b1 = addon:CreateButton(L["Close"], f.content)
-	b1:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -50)
+	b1:SetPoint("TOPRIGHT", f, "TOPRIGHT", -100, -50)
 	b1:SetScript("OnClick", function()
 		-- This needs to be dynamic if the ML has changed since this was first created
 		if addon.isMasterLooter and active then LibDialog:Spawn("RCLOOTCOUNCIL_CONFIRM_ABORT")
@@ -504,7 +506,7 @@ function RCVotingFrame:GetFrame()
 	-- More info button
 	local b2 = CreateFrame("Button", nil, f.content, "UIPanelButtonTemplate")
 	b2:SetSize(25,25)
-	b2:SetPoint("TOPRIGHT", f, "TOPRIGHT", -10, -20)
+	b2:SetPoint("TOPRIGHT", f, "TOPRIGHT", -100, -20)
 	if moreInfo then
 		b2:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Up");
 		b2:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Down");
@@ -539,8 +541,9 @@ function RCVotingFrame:GetFrame()
 	f.filter = b3
 
 	-- Disenchant button
-	local b4 = addon:CreateButton(L["Disenchant"], f.content)
+	local b4 = addon:CreateButton("DE", f.content)
 	b4:SetPoint("RIGHT", b3, "LEFT", -10, 0)
+	b4:SetSize(30,25)
 	b4:SetScript("OnClick", function(self) Lib_ToggleDropDownMenu(1, nil, enchanters, self, 0, 0) end )
 	--b4:SetNormalTexture("Interface\\Icons\\INV_Enchant_Disenchant")
 --	b4:Hide() -- hidden by default
@@ -564,7 +567,7 @@ function RCVotingFrame:GetFrame()
 
 	-- Award string
 	local awdstr = f.content:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	awdstr:SetPoint("CENTER", f.content, "TOP", 0, -60)
+	awdstr:SetPoint("CENTER", f.content, "TOP", -5, -45)
 	awdstr:SetText(L["Item has been awarded"])
 	awdstr:SetTextColor(1, 1, 0, 1) -- Yellow
 	awdstr:Hide()
@@ -572,9 +575,9 @@ function RCVotingFrame:GetFrame()
 
 	-- Session toggle
 	local stgl = CreateFrame("Frame", nil, f.content)
-	stgl:SetWidth(40)
+	stgl:SetWidth(30)
 	stgl:SetHeight(f:GetHeight())
-	stgl:SetPoint("TOPRIGHT", f, "TOPLEFT", -2, 0)
+	stgl:SetPoint("TOPRIGHT", f, "TOPLEFT", 5, -20)
 	f.sessionToggleFrame = stgl
 
 	-- Set a proper width
@@ -614,7 +617,7 @@ function RCVotingFrame:UpdateSessionButton(i, texture, link, awarded)
 	local btn = sessionButtons[i]
 	if not btn then -- create the button
 		btn = CreateFrame("Button", "RCButton"..i, self.frame.sessionToggleFrame)
-		btn:SetSize(40,40)
+		btn:SetSize(30,30)
 		--btn:SetText(i)
 		if i == 1 then
 			btn:SetPoint("TOPRIGHT", self.frame.sessionToggleFrame)
@@ -646,7 +649,7 @@ function RCVotingFrame:UpdateSessionButton(i, texture, link, awarded)
 	elseif awarded then
 		btn:SetBackdropBorderColor(0,1,0,1) -- green
 		--btn:SetBackdropColor(1,1,1,0.8)
-		btn:GetNormalTexture():SetVertexColor(0.8,0.8,0.8)
+		btn:GetNormalTexture():SetVertexColor(0.8,0.8,1)
 		tinsert(lines, L["This item has been awarded"])
 	else
 		btn:SetBackdropBorderColor(1,1,1,1) -- white
@@ -762,8 +765,9 @@ function RCVotingFrame.SetCellVote(rowFrame, frame, data, cols, row, realrow, co
 	if addon.isCouncil or addon.isMasterLooter then -- Only let the right people vote
 		if not frame.voteBtn then -- create it
 			frame.voteBtn = addon:CreateButton(L["Vote"], frame)
-			frame.voteBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, 0)
-			frame.voteBtn:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 0)
+			frame.voteBtn:SetPoint("CENTER", frame)
+			frame.voteBtn:SetPoint("CENTER", frame)
+			frame.voteBtn:SetSize(40,15)
 		end
 		frame.voteBtn:SetScript("OnClick", function(btn)
 			addon:Debug("Vote button pressed")
@@ -797,9 +801,9 @@ function RCVotingFrame.SetCellVote(rowFrame, frame, data, cols, row, realrow, co
 		end)
 		frame.voteBtn:Show()
 		if lootTable[session].candidates[name].haveVoted then
-			frame.voteBtn:SetText(L["Unvote"])
+			frame.voteBtn:SetText("-")
 		else
-			frame.voteBtn:SetText(L["Vote"])
+			frame.voteBtn:SetText("+")
 		end
 	end
 end
@@ -822,13 +826,13 @@ function RCVotingFrame.SetCellNote(rowFrame, frame, data, cols, row, realrow, co
 	end
 	frame.noteBtn = f
 end
-
+--[[
 function RCVotingFrame.SetCellRoll(rowFrame, frame, data, cols, row, realrow, column, fShow, table, ...)
 	local name = data[realrow].name
 	frame.text:SetText(lootTable[session].candidates[name].roll)
 	data[realrow].cols[column].value = lootTable[session].candidates[name].roll
 end
-
+--]]
 function RCVotingFrame.filterFunc(table, row)
 	if not db.modules["RCVotingFrame"].filters then return true end -- db hasn't been initialized, so just show it
 	local response = lootTable[session].candidates[row.name].response
@@ -961,11 +965,12 @@ do
 			end
 			Lib_UIDropDownMenu_AddButton(info, level)
 
+			--[[ --Hiding the roll stuff
 			info.text = L["Add rolls"]
 			info.notCheckable = true
 			info.func = function() RCVotingFrame:DoRandomRolls(session) end
 			Lib_UIDropDownMenu_AddButton(info, level)
-
+			--]]
 		elseif level == 2 then
 			local value = LIB_UIDROPDOWNMENU_MENU_VALUE
 			info = Lib_UIDropDownMenu_CreateInfo()

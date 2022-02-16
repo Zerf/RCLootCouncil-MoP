@@ -69,10 +69,10 @@ function RCLootCouncil:OnInitialize()
 	self.responses = {
 		NOTANNOUNCED	= { color = {1,0,1,1},				sort = 501,		text = L["Not announced"],},
 		ANNOUNCED		= { color = {1,0,1,1},				sort = 502,		text = L["Loot announced, waiting for answer"], },
-		WAIT				= { color = {1,1,0,1},				sort = 503,		text = L["Candidate is selecting response, please wait"], },
+		WAIT				= { color = {1,1,0,1},				sort = 503,		text = L["Candidate is selecting response"], },
 		TIMEOUT			= { color = {1,0,0,1},				sort = 504,		text = L["Candidate didn't respond on time"], },
 		REMOVED			= { color = {0.8,0.5,0,1},			sort = 505,		text = L["Candidate removed"], },
-		NOTHING			= { color = {0.5,0.5,0.5,1},		sort = 505,		text = L["Offline or RCLootCouncil not installed"], },
+		NOTHING			= { color = {0.5,0.5,0.5,1},		sort = 505,		text = L["Offline or not installed"], },
 		PASS				= { color = {0.7, 0.7,0.7,1},		sort = 800,		text = L["Pass"],},
 		AUTOPASS			= { color = {0.7,0.7,0.7,1},		sort = 801,		text = L["Autopass"], },
 		DISABLED			= { color = {0.3,0.35,0.5,1},		sort = 802,		text = L["Candidate has disabled RCLootCouncil"], },
@@ -225,7 +225,7 @@ function RCLootCouncil:OnInitialize()
 	end
 	for i = self.defaults.profile.numButtons+1, self.defaults.profile.maxButtons do
 		tinsert(self.defaults.profile.responses, {
-			color = {0.7, 0.7,0.7,0},
+			color = {0.7, 0.7,0.7,1}, -- alpha set to 1 as default
 			sort = i,
 			text = L["Button"]..i,
 		})
@@ -910,27 +910,25 @@ end
 
 -- Used to find localized subType names
 local subTypeLookup = {
-	["Cloth"]					= 124168, -- Felgrease-Smudged Robes
-	["Leather"] 				= 124265, -- Leggings of Eternal Terror
-	["Mail"] 					= 124291, -- Eredar Fel-Chain Gloves
-	["Plate"]					= 124322, -- Treads of the Defiler
-	["Shields"] 				= 124354, -- Felforged Aegis
-	["Bows"] 					= 128194, -- Snarlwood Recurve Bow
-	["Crossbows"] 				= 124362, -- Felcrystal Impaler
-	["Daggers"]					= 124367, -- Fang of the Pit
-	["Guns"]						= 124370, -- Felfire Munitions Launcher
-	["Fist Weapons"] 			= 124368, -- Demonblade Eviscerator
-	["One-Handed Axes"]		= 128196, -- Limbcarver Hatchet
-	["One-Handed Maces"]		= 124372, -- Gavel of the Eredar
-	["One-Handed Swords"] 	= 124387, -- Shadowrend Talonblade
-	["Polearms"] 				= 124377, -- Rune Infused Spear
-	["Staves"]					= 124382, -- Edict of Argus
-	["Two-Handed Axes"]		= 124360, -- Hellrender
-	["Two-Handed Maces"]		= 124375, -- Maul of Tyranny
-	["Two-Handed Swords"]	= 124389, -- Calamity's Edge
-	["Wands"]					= 128096, -- Demonspine Wand
-	["Warglaives"]				= 141604, -- Glaive of the Fallen
-	["Artifact Relic"]		= 141271, -- Hope of the Forest
+	["Cloth"]					= 103752, -- Bolt-Buster Grips
+	["Leather"] 				= 103948, -- Amber Parasite Wraps
+	["Mail"] 					= 103862, -- Bracers of the Pristine Purifier
+	["Plate"]					= 98611,  -- Blessed Trillium Belt
+	["Shields"] 				= 103870, -- Shield of Mockery
+	["Bows"] 					= 86142,  -- Fang Kung, Spark of Titans
+	["Crossbows"] 				= 95728,  -- Durumu's Baleful Gaze
+	["Daggers"]					= 103829, -- Nazgrim's Gutripper
+	["Guns"]					= 94963,  -- Voice of the Quilen
+	["Fist Weapons"] 			= 104683, -- Softfoot's Last Resort
+	["One-Handed Axes"]			= 87545,  -- Inelava, Spirit of Inebriation
+	["One-Handed Maces"]		= 103936, -- Kardris' Scepter
+	["One-Handed Swords"] 		= 103946, -- Arcweaver Spell Sword
+	["Polearms"] 				= 103968, -- Britomart's Jagged Pike
+	["Staves"]					= 103873, -- Gaze of Arrogance
+	["Two-Handed Axes"]			= 94982,  -- Uroe, Harbinger of Terror
+	["Two-Handed Maces"]		= 95499,  -- Invocation of the Dawn
+	["Two-Handed Swords"]		= 94592,  -- Lionheart Executioner, Reborn
+	["Wands"]					= 86137,  -- Torch of the Celestial Spark
 }
 
 function RCLootCouncil:LocalizeSubTypes()
