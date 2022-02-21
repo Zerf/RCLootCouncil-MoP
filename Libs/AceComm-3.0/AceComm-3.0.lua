@@ -17,6 +17,8 @@ TODO: Time out old data rotting around from dead senders? Not a HUGE deal since 
 
 ]]
 
+--local MAJOR, MINOR = "AceComm-3.0", 9
+-- bump version number to fix dumb people installing broken addons
 local MAJOR, MINOR = "AceComm-3.0", 9
 
 local AceComm,oldminor = LibStub:NewLibrary(MAJOR, MINOR)
