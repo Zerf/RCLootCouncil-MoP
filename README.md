@@ -4,6 +4,9 @@ Only enUS locale is supported!
 
 ## Changelog: ##
 
+~~22-02-2022 (1.0.3):~~\
+~~"bump AceComm version number to fix dumb people installing broken addons"~~\
+
 16-02-2022 (1.0.2):\
 votingFrame QoL changes.\
 Disable the built in roll functionality. (useless)\
@@ -19,8 +22,6 @@ Reverted AceTimer-3.0 lib back to previous version (r1079) (was causing C_ error
 ### Known bugs: ### 
 
 Pressing enter on note after already needing/passing the item gives a lua error
-
-Ranks do not display properly in the voting frame (curently string is empty, ml_core.lua -> Line 91)
 
 Item listing (tabs, left side) in the VotingFrame sometimes appear at the last position of the frame, not current.\
 This also affects the loot history on the frame.

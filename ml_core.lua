@@ -88,7 +88,7 @@ function RCLootCouncilML:AddCandidate(name, class, role, rank, enchant, lvl)
 		self.candidates[name] = {
 			["class"]		= class,
 			["role"]			= role,
-			["rank"]			= "", --rank or "", -- Rank cannot be nil for votingFrame
+			["rank"]			= rank or "", -- Rank cannot be nil for votingFrame
 			["enchanter"] 	= enchant,
 			["enchant_lvl"]= lvl,
 		}
